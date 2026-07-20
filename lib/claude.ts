@@ -82,7 +82,12 @@ async function sekaliJalan(client: Anthropic, promptPengguna: string): Promise<H
     .filter((b): b is Anthropic.TextBlock => b.type === "text")
     .map((b) => b.text)
     .join("\n");
-  return HasilAnalisisSchema.parse(ekstrakJson(teks));
+  try {
+    return HasilAnalisisSchema.parse(ekstrakJson(teks));
+  } catch (e) {
+    console.error("Validasi hasil analisis gagal:", e);
+    throw new Error("format JSON dari Claude tidak valid atau tidak sesuai skema");
+  }
 }
 
 export async function analisisSaham(): Promise<HasilAnalisis> {
