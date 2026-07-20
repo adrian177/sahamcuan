@@ -19,8 +19,14 @@ describe("statusSesi", () => {
   test("Senin 15:59 WIB → kritis", () => {
     expect(statusSesi(wib("2026-07-20", "15:59")).level).toBe("kritis");
   });
+  test("Senin 09:00 WIB → luar-jam (batas bawah)", () => {
+    expect(statusSesi(wib("2026-07-20", "09:00")).level).toBe("luar-jam");
+  });
   test("Senin 10:00 WIB → luar-jam", () => {
     expect(statusSesi(wib("2026-07-20", "10:00")).level).toBe("luar-jam");
+  });
+  test("Senin 15:29 WIB → luar-jam (batas atas ideal)", () => {
+    expect(statusSesi(wib("2026-07-20", "15:29")).level).toBe("luar-jam");
   });
   test("Senin 08:59 WIB → tutup", () => {
     expect(statusSesi(wib("2026-07-20", "08:59")).level).toBe("tutup");
@@ -39,11 +45,17 @@ describe("statusSesi", () => {
       expect(statusSesi(d).pesan.length).toBeGreaterThan(0);
     }
   });
+  test("Senin 15:45 WIB → pesan kritis tepat", () => {
+    expect(statusSesi(wib("2026-07-20", "15:45")).pesan).toBe("Kemungkinan hasil selesai setelah pasar tutup");
+  });
 });
 
 describe("skenario", () => {
   test("Senin 15:00 WIB → penutupan-hari-ini", () => {
     expect(skenario(wib("2026-07-20", "15:00"))).toBe("penutupan-hari-ini");
+  });
+  test("Senin 15:49 WIB → penutupan-hari-ini", () => {
+    expect(skenario(wib("2026-07-20", "15:49"))).toBe("penutupan-hari-ini");
   });
   test("Senin 15:50 WIB → pembukaan-besok", () => {
     expect(skenario(wib("2026-07-20", "15:50"))).toBe("pembukaan-besok");

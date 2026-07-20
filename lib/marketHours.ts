@@ -1,5 +1,6 @@
 // Semua logika waktu di file ini dihitung pada zona WIB (UTC+7),
 // diturunkan murni dari Date yang diberikan agar mudah dites.
+// keWIB menggunakan UTC getters agar tidak terpengaruh timezone host atau DST.
 
 export type StatusSesi = {
   level: "ideal" | "kritis" | "luar-jam" | "tutup";
@@ -11,9 +12,8 @@ const MENIT = (jam: number, menit: number) => jam * 60 + menit;
 type WaktuWIB = { hari: number; menit: number }; // hari: 0=Minggu..6=Sabtu
 
 function keWIB(now: Date): WaktuWIB {
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000;
-  const wib = new Date(utcMs + 7 * 3_600_000);
-  return { hari: wib.getDay(), menit: MENIT(wib.getHours(), wib.getMinutes()) };
+  const wib = new Date(now.getTime() + 7 * 3_600_000);
+  return { hari: wib.getUTCDay(), menit: MENIT(wib.getUTCHours(), wib.getUTCMinutes()) };
 }
 
 function hariBursa(hari: number): boolean {
@@ -29,7 +29,7 @@ export function statusSesi(now: Date): StatusSesi {
     return { level: "ideal", pesan: "Jendela ideal — hasil siap sebelum penutupan" };
   }
   if (menit >= MENIT(15, 45) && menit < MENIT(16, 0)) {
-    return { level: "kritis", pesan: "Kemungkinan hasil selesai setelum pasar tutup" };
+    return { level: "kritis", pesan: "Kemungkinan hasil selesai setelah pasar tutup" };
   }
   if (menit >= MENIT(9, 0) && menit < MENIT(15, 30)) {
     return { level: "luar-jam", pesan: "Di luar jam ideal — data intraday belum final" };
