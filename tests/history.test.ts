@@ -66,4 +66,12 @@ describe("riwayat", () => {
     expect(bacaRiwayat(s)).toEqual([]);
     expect(s.getItem("sahamcuan-riwayat")).toBeNull();
   });
+
+  test("setItem melempar (storage penuh) → tidak melempar, tetap kembalikan daftar", () => {
+    const s = storagePalsu();
+    const penuh = { ...s, setItem: () => { throw new Error("QuotaExceededError"); } };
+    expect(() => tambahRiwayat(penuh, hasilDummy("BBRI"))).not.toThrow();
+    const daftar = tambahRiwayat(penuh, hasilDummy("BBCA"));
+    expect(daftar[0].kode).toEqual(["BBCA"]);
+  });
 });
