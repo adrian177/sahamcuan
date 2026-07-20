@@ -48,6 +48,7 @@ export default function Home() {
     setMemuat(true);
     setTahap(0);
     setGalat(null);
+    setHasil(null);
     setDariRiwayat(false);
     try {
       const res = await fetch("/api/analyze", { method: "POST" });
