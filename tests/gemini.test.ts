@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { buatPromptPengguna } from "@/lib/claude";
+import { buatPromptPengguna } from "@/lib/gemini";
 
 describe("buatPromptPengguna", () => {
   test("hari bursa sebelum 15:50 → skenario penutupan hari ini", () => {
