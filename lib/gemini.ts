@@ -50,7 +50,7 @@ export function buatPromptPengguna(now: Date): string {
 
 async function sekaliJalan(ai: GoogleGenAI, promptPengguna: string): Promise<HasilAnalisis> {
   const res = await ai.models.generateContent({
-    model: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
+    model: process.env.GEMINI_MODEL ?? "gemini-flash-latest",
     contents: promptPengguna,
     config: {
       systemInstruction: PROMPT_SISTEM,

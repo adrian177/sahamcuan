@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stock Picker IDX
 
-## Getting Started
+Aplikasi lokal yang merekomendasikan maksimal 3 saham IDX untuk dibeli,
+berdasarkan analisis **real-time** memakai **Gemini API + grounding Google
+Search** — bukan data statis. Bukan nasihat keuangan; keputusan akhir
+sepenuhnya di tangan pengguna.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. `npm install`
+2. Salin `.env.local.example` menjadi `.env.local`, isi `GEMINI_API_KEY`
+   (buat di https://aistudio.google.com/apikey).
+3. `npm run dev` lalu buka http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> **Catatan tier:** grounding Google Search membutuhkan project Gemini yang
+> billing-nya aktif (tier berbayar). Model biasa jalan di free tier, tapi
+> pencarian web real-time tidak. Biaya grounding sangat kecil untuk pemakaian
+> pribadi. Model default `gemini-flash-latest` (bisa diubah lewat
+> `GEMINI_MODEL` di `.env.local`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Cara pakai
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Jalankan pada **15:30–15:45 WIB** hari bursa (jendela ideal), klik
+**Cari Saham Terbaik**, tunggu ±1–2 menit. Di luar jam itu aplikasi tetap
+jalan dengan peringatan yang sesuai (mis. pasar tutup → analisis diarahkan
+untuk pembukaan hari bursa berikutnya). Riwayat 5 pencarian terakhir tersimpan
+di browser (localStorage).
 
-## Learn More
+## Cara kerja
 
-To learn more about Next.js, take a look at the following resources:
+- `POST /api/analyze` memanggil Gemini satu kali dengan tool `googleSearch`
+  aktif. Model mencari sendiri: rekomendasi sekuritas ≤3 hari, kondisi IHSG,
+  katalis, dan sentimen global — lalu menyusun skor berbobot (katalis 30%,
+  konsensus 25%, momentum + dana asing 25%, fundamental 20%) dan memilih
+  maksimal 3 saham likuid (LQ45/IDX80).
+- Hasil dikembalikan sebagai JSON, divalidasi dengan Zod (`lib/schema.ts`);
+  bila JSON tidak valid, ada satu kali percobaan ulang.
+- Logika status sesi pasar WIB murni ada di `lib/marketHours.ts`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Perintah
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` — jalankan server lokal
+- `npm test` — unit test (Vitest)
+- `npx tsc --noEmit` — pemeriksaan tipe
 
-## Deploy on Vercel
+Spec & rencana: `docs/superpowers/specs/`, `docs/superpowers/plans/`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Disclaimer
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Aplikasi ini **bukan nasihat keuangan**. Data diambil dari sumber publik yang
+bisa tertunda atau tidak akurat. Level entry/target/cutloss berasal dari analis
+pihak ketiga. Segala keputusan beli/jual dan risikonya sepenuhnya menjadi
+tanggung jawab pengguna.
