@@ -44,3 +44,7 @@ next-env.d.ts
 # session scratch (not part of the project)
 .superpowers/
 .claude/settings.local.json
+
+# lokal / tak portabel
+start-server.bat
+dev-output.log
